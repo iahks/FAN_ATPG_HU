@@ -352,8 +352,8 @@ void Simulator::multiThread_parallelPatternFaultSim(FaultPtrList &remainingFault
 
 		if (parallelPatternCheckActivation((*it)))
 		{
-			m.lock();
 			parallelPatternFaultInjection((*it));
+			m.lock();
 			eventFaultSim();
 			m.unlock();
 			parallelPatternCheckDetection((*it));
