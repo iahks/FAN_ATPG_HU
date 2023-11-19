@@ -267,6 +267,111 @@ void Simulator::parallelPatternFaultSim(FaultPtrList &remainingFaults)
 }
 
 // **************************************************************************
+// Function   [ Simulator::multiThread_parallelPatternFaultSimWithAllPattern ]
+// Commenter  [ Daniel Han]
+// Synopsis   [ usage: Perform parallel pattern fault simulation with all patterns
+//                     on all faults.
+//              description:
+//              	First we extract undetected faults from the fault list. Then we
+//              	collect many patterns (at most WORD_SIZE) and call the
+//              	parallelPatternFaultSim function to do the fault simulation
+//              	on undetected faults for these patterns.
+//              arguments:
+//              	[in] pPatternCollector : The patterns generated in ATPG.
+//              	[in] pFaultListExtract : The whole fault list.
+//            ]
+// Date       [ Ver. 1.0 last modified 2023/01/06 ]
+// **************************************************************************
+
+
+
+void Simulator::multiThread_parallelPatternFaultSimWithAllPattern(PatternProcessor *pPatternCollector, FaultListExtract *pFaultListExtract)
+{
+	// Undetected faults are remaining faults.
+	FaultPtrList remainingFaults;
+	for (Fault *const &pFault : pFaultListExtract->faultsInCircuit_)
+	{
+		bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
+		if (faultNotDetect)
+		{
+			remainingFaults.push_back(pFault);
+		}
+	}
+
+	// Fault Patition
+	FaultPtrList partitionFaults1, partitionFaults2;
+	FaultPtrList::iterator faultIter = remainingFaults.begin();
+	for(int i=0; (int)i<remainingFaults.size()/2;i++){
+		faultIter ++;
+	}
+	partitionFaults1.assign(remainingFaults.begin(), faultIter);
+	partitionFaults2.assign(faultIter++, remainingFaults.end());
+
+	std::cout<<"Total Fault Size: "<<remainingFaults.size()<<'\n';
+	std::cout<<"Fault1 Size: "<<partitionFaults1.size()<<'\n';
+	std::cout<<"Fault2 Size: "<<partitionFaults2.size()<<'\n';
+
+
+	// for(Fault* n: partitionFaults1){
+	// 	std::cout<<"Fault Type: "<<n->faultType_<<" Gate_ID"<<n->gateID_<<'\n';
+	// }
+	// for(Fault* n: partitionFaults2){
+	// 	std::cout<<"Fault Type: "<<n->faultType_<<" Gate_ID"<<n->gateID_<<'\n';
+	// }
+
+	// Simulate all patterns for all faults.
+	for (int patternStartIndex = 0; patternStartIndex < (int)pPatternCollector->patternVector_.size(); patternStartIndex += WORD_SIZE)
+	{
+		parallelPatternSetPattern(pPatternCollector, patternStartIndex);
+		std::thread t1(&CoreNs::Simulator::multiThread_parallelPatternFaultSim, this, std::ref(partitionFaults1), 1);
+		std::thread t2(&CoreNs::Simulator::multiThread_parallelPatternFaultSim, this, std::ref(partitionFaults2), 2);
+		t1.join();
+		t2.join();
+		// parallelPatternFaultSim(remainingFaults);
+	}
+}
+
+
+std::mutex m;
+
+void Simulator::multiThread_parallelPatternFaultSim(FaultPtrList &remainingFaults, int index)
+{
+	if (remainingFaults.size() == 0)
+	{
+		return;
+	}
+
+	// Run good simulation first.
+	std::cout<<"Thread "<<index<<" started. \n";
+	goodSimCopyGoodToFault();
+
+	FaultPtrListIter it = remainingFaults.begin();
+	while (it != remainingFaults.end())
+	{
+		// std::cout<<"Thread "<<index<<" fault size: "<<remainingFaults.size()<<" started \n";
+
+		if (parallelPatternCheckActivation((*it)))
+		{
+			m.lock();
+			parallelPatternFaultInjection((*it));
+			eventFaultSim();
+			m.unlock();
+			parallelPatternCheckDetection((*it));
+			parallelPatternReset();
+		}
+		if ((*it)->faultState_ == Fault::DT)
+		{
+			it = remainingFaults.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+		// std::cout<<"Thread "<<index<<" fault size: "<<remainingFaults.size()<<" ended \n";
+	}
+}
+
+// **************************************************************************
 // Function   [ Simulator::parallelFaultReset ]
 // Commenter  [ CJY, CBH, PYH ]
 // Synopsis   [ usage: Reset simulation after doing parallel fault fault simulation.

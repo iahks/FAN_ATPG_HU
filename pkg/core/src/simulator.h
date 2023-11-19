@@ -12,6 +12,9 @@
 #include <stack>
 #include <vector>
 
+#include <thread>
+#include <mutex>
+
 #include "pattern.h"
 #include "fault.h"
 #include "logic.h"
@@ -41,6 +44,10 @@ namespace CoreNs
 		void parallelPatternGoodSimWithAllPattern(PatternProcessor *pPatternCollector);
 		void parallelPatternFaultSimWithAllPattern(PatternProcessor *pPatternCollector, FaultListExtract *pFaultListExtract);
 		void parallelPatternFaultSim(FaultPtrList &remainingFaults);
+
+		//Multithread Parallel pattern simulator
+		void multiThread_parallelPatternFaultSimWithAllPattern(PatternProcessor *pPatternCollector, FaultListExtract *pFaultListExtract);
+		void multiThread_parallelPatternFaultSim(FaultPtrList &remainingFaults, int index);
 
 	private:
 		// Used by both parallel fault and parallel pattern simulation.

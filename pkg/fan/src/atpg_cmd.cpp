@@ -1252,6 +1252,12 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 	{
 		fanMgr_->sim->parallelFaultFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
 	}
+	else if (optMgr_.isFlagSet("m") && optMgr_.getFlagVar("m") == "mt")
+	{
+		std::cout<<"#  Multi-thread Fault Sim Started ...\n";
+		fanMgr_->sim->multiThread_parallelPatternFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
+		std::cout<<"#  Multi-thread Fault Sim Ended ...\n";
+	}
 	else
 	{
 		fanMgr_->sim->parallelPatternFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
