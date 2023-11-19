@@ -4325,14 +4325,8 @@ void Atpg::calSCOAP()
 				xorcc[5] = gateInputs[0].cc1_ + gateInputs[1].cc0_ + gateInputs[2].cc1_;
 				xorcc[6] = gateInputs[0].cc1_ + gateInputs[1].cc1_ + gateInputs[2].cc0_;
 				xorcc[7] = gateInputs[0].cc1_ + gateInputs[1].cc1_ + gateInputs[2].cc1_;
-				gate.cc0_ = std::min(xorcc[0], xorcc[7]);
-				for (int j = 1; j < 7; ++j)
-				{
-					if (j == 1 || xorcc[j] < gate.cc1_)
-					{
-						gate.cc1_ = xorcc[j];
-					}
-				}
+				gate.cc0_ = std::min({xorcc[0], xorcc[3], xorcc[5], xorcc[6]});
+				gate.cc1_ = std::min({xorcc[1], xorcc[2], xorcc[4], xorcc[7]});
 				++gate.cc0_;
 				++gate.cc1_;
 				break;
@@ -4360,14 +4354,8 @@ void Atpg::calSCOAP()
 				xorcc[5] = gateInputs[0].cc1_ + gateInputs[1].cc0_ + gateInputs[2].cc1_;
 				xorcc[6] = gateInputs[0].cc1_ + gateInputs[1].cc1_ + gateInputs[2].cc0_;
 				xorcc[7] = gateInputs[0].cc1_ + gateInputs[1].cc1_ + gateInputs[2].cc1_;
-				gate.cc1_ = std::min(xorcc[0], xorcc[7]);
-				for (int j = 1; j < 7; ++j)
-				{
-					if (j == 1 || xorcc[j] < gate.cc1_)
-					{
-						gate.cc0_ = xorcc[j];
-					}
-				}
+				gate.cc1_ = std::min({xorcc[0], xorcc[3], xorcc[5], xorcc[6]});
+				gate.cc0_ = std::min({xorcc[1], xorcc[2], xorcc[4], xorcc[7]});
 				++gate.cc0_;
 				++gate.cc1_;
 				break;
