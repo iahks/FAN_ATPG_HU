@@ -8,22 +8,22 @@
 #    FU (full)                                 31456
 #    FU (collapsed)                            22524
 #    --------------------------  -------------------
-#    UD (undetected)                            1674
+#    UD (undetected)                            1693
 #    PT (possibly testable)                        0
 #    AU (atpg untestable)                          0
 #    RE (redundant)                                0
 #    AB (atpg abort)                               0
 #    TI (tied)                                     0
 #    --------------------------  -------------------
-#    DT (detected)                             29782
+#    DT (detected)                             29763
 #  -------------------------------------------------
 #  Coverage                               percentage
 #    --------------------------  -------------------
-#    test coverage                            94.68%
-#    fault coverage                           94.68%
-#    atpg effectiveness                       94.68%
+#    test coverage                            94.62%
+#    fault coverage                           94.62%
+#    atpg effectiveness                       94.62%
 #  -------------------------------------------------
 #  #Patterns                                     104
 #  -------------------------------------------------
-#  ATPG runtime                             0.2261 s
+#  ATPG runtime                             0.2463 s
 #  -------------------------------------------------

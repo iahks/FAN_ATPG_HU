@@ -1,29 +1,29 @@
 #                 Statistics Report
-#  Circuit name                                 s953
+#  Circuit name                                  s27
 #  Fault model                                   SAF
 #  Pattern type                                BASIC
 #  -------------------------------------------------
 #  Fault classes                             #faults
 #  ----------------------------  -------------------
-#    FU (full)                                  2702
-#    FU (collapsed)                             1877
+#    FU (full)                                   110
+#    FU (collapsed)                               90
 #    --------------------------  -------------------
-#    UD (undetected)                              58
+#    UD (undetected)                               6
 #    PT (possibly testable)                        0
 #    AU (atpg untestable)                          0
 #    RE (redundant)                                0
 #    AB (atpg abort)                               0
 #    TI (tied)                                     0
 #    --------------------------  -------------------
-#    DT (detected)                              2644
+#    DT (detected)                               104
 #  -------------------------------------------------
 #  Coverage                               percentage
 #    --------------------------  -------------------
-#    test coverage                            97.85%
-#    fault coverage                           97.85%
-#    atpg effectiveness                       97.85%
+#    test coverage                            94.55%
+#    fault coverage                           94.55%
+#    atpg effectiveness                       94.55%
 #  -------------------------------------------------
-#  #Patterns                                      83
+#  #Patterns                                       5
 #  -------------------------------------------------
-#  ATPG runtime                           0.003738 s
+#  ATPG runtime                           0.000577 s
 #  -------------------------------------------------

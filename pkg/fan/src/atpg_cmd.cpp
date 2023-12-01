@@ -1255,8 +1255,79 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 	else if (optMgr_.isFlagSet("m") && optMgr_.getFlagVar("m") == "mt")
 	{
 		std::cout<<"#  Multi-thread Fault Sim Started ...\n";
-		fanMgr_->sim->multiThread_parallelPatternFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
-		std::cout<<"#  Multi-thread Fault Sim Ended ...\n";
+		//fanMgr_->sim->multiThread_parallelPatternFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
+
+		// FanMgr *fanMgr1_ = new FanMgr;
+		// FanMgr *fanMgr2_ = new FanMgr;
+		// * fanMgr1_ = * fanMgr_;
+		// * fanMgr2_ = * fanMgr_;
+		// FaultPtrList::iterator faultIter = fanMgr_->fListExtract->faultsInCircuit_.begin();
+		// for(int i=0; (int)i<fanMgr_->fListExtract->faultsInCircuit_.size()/2;i++){
+		// 	faultIter ++;
+		// }
+		// fanMgr1_->fListExtract->faultsInCircuit_.clear();
+		// fanMgr2_->fListExtract->faultsInCircuit_.clear();
+		// fanMgr1_->fListExtract->faultsInCircuit_.assign(fanMgr_->fListExtract->faultsInCircuit_.begin(), faultIter);
+		// fanMgr2_->fListExtract->faultsInCircuit_.assign(faultIter++, fanMgr_->fListExtract->faultsInCircuit_.end());
+		// std::thread t1(&CoreNs::Simulator::parallelPatternFaultSimWithAllPattern, this, std::ref(fanMgr1_->pcoll), std::ref(fanMgr1_->fListExtract));
+		// std::thread t2(&CoreNs::Simulator::parallelPatternFaultSimWithAllPattern, this, std::ref(fanMgr2_->pcoll), std::ref(fanMgr2_->fListExtract));
+		// t1.join();
+		// t2.join();
+		// std::cout<<"#  Multi-thread Fault Sim Ended ...\n";
+		FaultPtrList &originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
+
+		// Split the original list into two halves
+		size_t QuarterSize = originalFaults.size() / 2;
+		FaultPtrList::iterator faultIter = originalFaults.begin();
+		for(int i=0; (int)i<originalFaults.size()/2;i++){
+			faultIter ++;
+		}
+		//FaultPtrList firstHalf(originalFaults.begin(), std::next(originalFaults.begin(), halfSize));
+		//FaultPtrList secondHalf(std::next(originalFaults.begin(), halfSize), originalFaults.end());
+
+		// Create two FanMgr instances
+		FanMgr fanMgr1(*fanMgr_);
+    	FanMgr fanMgr2(*fanMgr_);
+		//FanMgr fanMgr3(*fanMgr_);
+		
+		// Assign the halves to the corresponding FanMgr instances
+		//fanMgr1.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), originalFaults.begin(), std::next(originalFaults.begin(), QuarterSize)); 
+		//fanMgr2.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize), std::next(originalFaults.begin(), QuarterSize*2)); 
+		//fanMgr3.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize*2), originalFaults.end()); 
+		//fanMgr2.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize), originalFaults.end()); 
+		fanMgr1.fListExtract->faultsInCircuit_.assign(originalFaults.begin(), faultIter);
+		fanMgr2.fListExtract->faultsInCircuit_.assign(faultIter++, originalFaults.end());
+
+
+		// int rand = 0;
+		// for (Fault *const &pFault : fanMgr_->fListExtract->faultsInCircuit_){
+		// 	if(rand == 0) 
+		// 		fanMgr1.fListExtract->faultsInCircuit_.push_back(pFault);
+		// 	else 
+		// 		fanMgr2.fListExtract->faultsInCircuit_.push_back(pFault);
+		// 	rand = 1-rand;
+		// }
+
+		// Define a lambda function to run the simulation
+		auto runSimulation = [](FanMgr *fanMgr) {
+			fanMgr->sim->parallelPatternFaultSimWithAllPattern(fanMgr->pcoll, fanMgr->fListExtract);
+		};
+
+
+		// Create two threads and run the simulation in parallel
+		std::thread thread1(runSimulation, &fanMgr1);
+		std::thread thread2(runSimulation, &fanMgr2);
+		//std::thread thread3(runSimulation, &fanMgr3);
+
+		// Wait for both threads to finish
+		thread1.join();
+		thread2.join();
+		//thread3.join();
+		// Combine the results back into fanMgr_->fListExtract->faultsInCircuit_
+		originalFaults.clear();
+		originalFaults.insert(originalFaults.end(), fanMgr1.fListExtract->faultsInCircuit_.begin(), fanMgr1.fListExtract->faultsInCircuit_.end());
+		originalFaults.insert(originalFaults.end(), fanMgr2.fListExtract->faultsInCircuit_.begin(), fanMgr2.fListExtract->faultsInCircuit_.end());
+		//originalFaults.insert(originalFaults.end(), fanMgr3.fListExtract->faultsInCircuit_.begin(), fanMgr3.fListExtract->faultsInCircuit_.end());
 	}
 	else
 	{

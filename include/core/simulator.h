@@ -11,9 +11,11 @@
 #include <array>
 #include <stack>
 #include <vector>
+#include <algorithm>
 
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 #include "pattern.h"
 #include "fault.h"
@@ -26,6 +28,7 @@ namespace CoreNs
 	public:
 		inline Simulator(Circuit *pCircuit);
 
+		inline Simulator(const Simulator &other);
 		// Used by both parallel pattern and parallel fault.
 		inline void setNumDetection(const int &numDetection); // This for n-detect.
 		inline void goodSim();
@@ -53,10 +56,15 @@ namespace CoreNs
 		// Used by both parallel fault and parallel pattern simulation.
 		Circuit *pCircuit_;                   // The circuit use in simulator.
 		int numDetection_;                    // For n-detect.
-		int numRecover_;                      // Number of recovers needed.
+		int numRecover_= 0;                      // Number of recovers needed.
 		std::vector<std::stack<int>> events_; // The event stacks for every circuit levels.
 		std::vector<int> processed_;          // Array of processed flags. 1 means this gate is processed.
 		std::vector<int> recoverGates_;       // Array of gates to be recovered from the last fault injection.
+		std::mutex mutex_;
+		std::mutex check_;
+		std::condition_variable cv_;
+
+
 		// This is to inject fault into the circuit.
 		// faultInjectLow_ = 1 faultInjectHigh_ = 0 means we inject a stuck-at zero fault.
 		// faultInjectLow_ = 0 faultInjectHigh_ = 1 means we inject a stuck-at one fault.
@@ -78,6 +86,7 @@ namespace CoreNs
 
 		// Functions for parallel pattern simulator.
 		void parallelPatternReset();
+		void parallelPatternResetInjection();
 		bool parallelPatternCheckActivation(const Fault *const pfault);
 		void parallelPatternFaultInjection(const Fault *const pfault);
 		void parallelPatternCheckDetection(Fault *const pfault);
@@ -95,6 +104,22 @@ namespace CoreNs
 				faultInjectHigh_(pCircuit->totalGate_, std::array<ParallelValue, 5>({0, 0, 0, 0, 0})),
 				numInjectedFaults_(0),
 				activated_(PARA_L)
+	{
+	}
+
+	inline Simulator::Simulator(const Simulator &other)
+    		: pCircuit_(new Circuit(*other.pCircuit_)), // Assuming Circuit supports proper copy construction
+				numDetection_(other.numDetection_),
+				numRecover_(other.numRecover_),
+				events_(other.events_),
+				processed_(other.processed_),
+				recoverGates_(other.recoverGates_),
+				mutex_(), // Initialize mutexes for the new instance
+				cv_(),
+				faultInjectLow_(other.faultInjectLow_),
+				faultInjectHigh_(other.faultInjectHigh_),
+				numInjectedFaults_(other.numInjectedFaults_),
+				activated_(other.activated_)
 	{
 	}
 

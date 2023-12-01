@@ -22,7 +22,7 @@ public:
     FanMgr() {
         lib            = NULL;
         nl             = NULL;
-        fListExtract          = NULL;
+        fListExtract   = NULL;
         pcoll          = NULL;
         cir            = NULL;
         sim            = NULL;
@@ -30,6 +30,17 @@ public:
         atpgStat.rTime = 0;
     }
     ~FanMgr() {}
+    FanMgr(const FanMgr &other) {
+        // Perform deep copy of relevant members
+        lib            = other.lib;
+        nl             = other.nl;  
+        fListExtract   = new CoreNs::FaultListExtract;//(*other.fListExtract);
+        pcoll          = new CoreNs::PatternProcessor(*other.pcoll);
+        cir            = other.cir;
+        sim            = new CoreNs::Simulator(*other.sim);
+        atpg           = other.atpg;
+        atpgStat.rTime = other.atpgStat.rTime;
+    }
 
     IntfNs::Techlib     *lib;
     IntfNs::Netlist     *nl;
