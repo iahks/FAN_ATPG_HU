@@ -206,7 +206,7 @@ bool ReportPatCmd::exec(const std::vector<std::string> &argv)
 			}
 		}
 		std::cout << "\n"
-							<< "#\n";
+				  << "#\n";
 	}
 	return true;
 }
@@ -277,14 +277,14 @@ bool AddFaultCmd::exec(const std::vector<std::string> &argv)
 			}
 			std::string type = optMgr_.getParsedArg(0);
 			if (fanMgr_->fListExtract->faultListType_ == FaultListExtract::SAF &&
-					(type != "SA0" && type != "SA1"))
+				(type != "SA0" && type != "SA1"))
 			{
 				std::cerr << "**ERROR AddFaultCmd::exec(): stuck-at fault only ";
 				std::cerr << "supports SA0 and SA1\n";
 				return false;
 			}
 			if (fanMgr_->fListExtract->faultListType_ == FaultListExtract::TDF &&
-					(type != "STR" && type != "STF"))
+				(type != "STR" && type != "STF"))
 			{
 				std::cerr << "**ERROR AddFaultCmd::exec(): transition delay ";
 				std::cerr << "fault only supports STR and STF\n";
@@ -353,7 +353,7 @@ bool AddFaultCmd::addPinFault(const std::string &type, const std::string &pin)
 }
 
 bool AddFaultCmd::addCellFault(const std::string &type, const std::string &cell,
-															 const std::string &pin)
+							   const std::string &pin)
 {
 	Cell *c = fanMgr_->nl->getTop()->getCell(cell.c_str());
 	if (!c)
@@ -478,18 +478,18 @@ bool ReportFaultCmd::exec(const std::vector<std::string> &argv)
 	std::cout << "#    fault type:       ";
 	switch (fanMgr_->fListExtract->faultListType_)
 	{
-		case FaultListExtract::SAF:
-			std::cout << "stuck-at fault\n";
-			break;
-		case FaultListExtract::TDF:
-			std::cout << "transition delay fault\n";
-			break;
-		case FaultListExtract::BRF:
-			std::cout << "bridging fault\n";
-			break;
-		default:
-			std::cout << "\n";
-			break;
+	case FaultListExtract::SAF:
+		std::cout << "stuck-at fault\n";
+		break;
+	case FaultListExtract::TDF:
+		std::cout << "transition delay fault\n";
+		break;
+	case FaultListExtract::BRF:
+		std::cout << "bridging fault\n";
+		break;
+	default:
+		std::cout << "\n";
+		break;
 	}
 	std::cout << "#    number of faults: " << fanMgr_->fListExtract->faultsInCircuit_.size();
 	std::cout << "\n";
@@ -505,45 +505,45 @@ bool ReportFaultCmd::exec(const std::vector<std::string> &argv)
 		std::cout << "#    ";
 		switch ((*it)->faultType_)
 		{
-			case Fault::SA0:
-				std::cout << "SA0     ";
-				break;
-			case Fault::SA1:
-				std::cout << "SA1     ";
-				break;
-			case Fault::STR:
-				std::cout << "STR     ";
-				break;
-			case Fault::STF:
-				std::cout << "STF     ";
-				break;
-			case Fault::BR:
-				std::cout << "BR      ";
-				break;
+		case Fault::SA0:
+			std::cout << "SA0     ";
+			break;
+		case Fault::SA1:
+			std::cout << "SA1     ";
+			break;
+		case Fault::STR:
+			std::cout << "STR     ";
+			break;
+		case Fault::STF:
+			std::cout << "STF     ";
+			break;
+		case Fault::BR:
+			std::cout << "BR      ";
+			break;
 		}
 		switch ((*it)->faultState_)
 		{
-			case Fault::UD:
-				std::cout << " UD     ";
-				break;
-			case Fault::DT:
-				std::cout << " DT     ";
-				break;
-			case Fault::PT:
-				std::cout << " PT     ";
-				break;
-			case Fault::AU:
-				std::cout << " AU     ";
-				break;
-			case Fault::TI:
-				std::cout << " TI     ";
-				break;
-			case Fault::RE:
-				std::cout << " RE     ";
-				break;
-			case Fault::AB:
-				std::cout << " AB     ";
-				break;
+		case Fault::UD:
+			std::cout << " UD     ";
+			break;
+		case Fault::DT:
+			std::cout << " DT     ";
+			break;
+		case Fault::PT:
+			std::cout << " PT     ";
+			break;
+		case Fault::AU:
+			std::cout << " AU     ";
+			break;
+		case Fault::TI:
+			std::cout << " TI     ";
+			break;
+		case Fault::RE:
+			std::cout << " RE     ";
+			break;
+		case Fault::AB:
+			std::cout << " AB     ";
+			break;
 		}
 		int cid = fanMgr_->cir->circuitGates_[(*it)->gateID_].cellId_;
 		int pid = (*it)->faultyLine_;
@@ -948,30 +948,30 @@ bool ReportStatsCmd::exec(const std::vector<std::string> &argv)
 	std::string ftype = "";
 	switch (fanMgr_->fListExtract->faultListType_)
 	{
-		case FaultListExtract::SAF:
-			ftype = "SAF";
-			break;
-		case FaultListExtract::TDF:
-			ftype = "TDF";
-			break;
-		case FaultListExtract::BRF:
-			ftype = "BRF";
-			break;
+	case FaultListExtract::SAF:
+		ftype = "SAF";
+		break;
+	case FaultListExtract::TDF:
+		ftype = "TDF";
+		break;
+	case FaultListExtract::BRF:
+		ftype = "BRF";
+		break;
 	}
 
 	// determine pattern type
 	std::string ptype = "";
 	switch (fanMgr_->pcoll->type_)
 	{
-		case PatternProcessor::BASIC_SCAN:
-			ptype = "BASIC";
-			break;
-		case PatternProcessor::LAUNCH_CAPTURE:
-			ptype = "LOC";
-			break;
-		case PatternProcessor::LAUNCH_SHIFT:
-			ptype = "LOS";
-			break;
+	case PatternProcessor::BASIC_SCAN:
+		ptype = "BASIC";
+		break;
+	case PatternProcessor::LAUNCH_CAPTURE:
+		ptype = "LOC";
+		break;
+	case PatternProcessor::LAUNCH_SHIFT:
+		ptype = "LOS";
+		break;
 	}
 
 	// determine atpg runtime
@@ -1002,27 +1002,27 @@ bool ReportStatsCmd::exec(const std::vector<std::string> &argv)
 		fu += eq;
 		switch ((*it)->faultState_)
 		{
-			case Fault::UD:
-				ud += eq;
-				break;
-			case Fault::DT:
-				dt += eq;
-				break;
-			case Fault::PT:
-				pt += eq;
-				break;
-			case Fault::AU:
-				au += eq;
-				break;
-			case Fault::TI:
-				ti += eq;
-				break;
-			case Fault::RE:
-				re += eq;
-				break;
-			case Fault::AB:
-				ab += eq;
-				break;
+		case Fault::UD:
+			ud += eq;
+			break;
+		case Fault::DT:
+			dt += eq;
+			break;
+		case Fault::PT:
+			pt += eq;
+			break;
+		case Fault::AU:
+			au += eq;
+			break;
+		case Fault::TI:
+			ti += eq;
+			break;
+		case Fault::RE:
+			re += eq;
+			break;
+		case Fault::AB:
+			ab += eq;
+			break;
 		}
 	}
 
@@ -1205,9 +1205,13 @@ RunFaultSimCmd::RunFaultSimCmd(const std::string &name, FanMgr *fanMgr) : Cmd(na
 	opt->addFlag("h");
 	opt->addFlag("help");
 	optMgr_.regOpt(opt);
-	opt = new Opt(Opt::STR_REQ, "simulation METHOD. Choose either pp (parallel pattern) or pf (parallel fault)", "METHOD");
+	opt = new Opt(Opt::STR_REQ, "simulation METHOD. Choose either pp (parallel pattern), pf (parallel fault) or mt (multithread)", "METHOD");
 	opt->addFlag("m");
 	opt->addFlag("method");
+	optMgr_.regOpt(opt);
+	opt = new Opt(Opt::STR_REQ, "thread NUMBER. Choose a integer", "NUMBER");
+	opt->addFlag("n");
+	opt->addFlag("number");
 	optMgr_.regOpt(opt);
 }
 RunFaultSimCmd::~RunFaultSimCmd() {}
@@ -1254,80 +1258,75 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 	}
 	else if (optMgr_.isFlagSet("m") && optMgr_.getFlagVar("m") == "mt")
 	{
-		std::cout<<"#  Multi-thread Fault Sim Started ...\n";
-		//fanMgr_->sim->multiThread_parallelPatternFaultSimWithAllPattern(fanMgr_->pcoll, fanMgr_->fListExtract);
-
-		// FanMgr *fanMgr1_ = new FanMgr;
-		// FanMgr *fanMgr2_ = new FanMgr;
-		// * fanMgr1_ = * fanMgr_;
-		// * fanMgr2_ = * fanMgr_;
-		// FaultPtrList::iterator faultIter = fanMgr_->fListExtract->faultsInCircuit_.begin();
-		// for(int i=0; (int)i<fanMgr_->fListExtract->faultsInCircuit_.size()/2;i++){
-		// 	faultIter ++;
-		// }
-		// fanMgr1_->fListExtract->faultsInCircuit_.clear();
-		// fanMgr2_->fListExtract->faultsInCircuit_.clear();
-		// fanMgr1_->fListExtract->faultsInCircuit_.assign(fanMgr_->fListExtract->faultsInCircuit_.begin(), faultIter);
-		// fanMgr2_->fListExtract->faultsInCircuit_.assign(faultIter++, fanMgr_->fListExtract->faultsInCircuit_.end());
-		// std::thread t1(&CoreNs::Simulator::parallelPatternFaultSimWithAllPattern, this, std::ref(fanMgr1_->pcoll), std::ref(fanMgr1_->fListExtract));
-		// std::thread t2(&CoreNs::Simulator::parallelPatternFaultSimWithAllPattern, this, std::ref(fanMgr2_->pcoll), std::ref(fanMgr2_->fListExtract));
-		// t1.join();
-		// t2.join();
-		// std::cout<<"#  Multi-thread Fault Sim Ended ...\n";
-		FaultPtrList &originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
-
-		// Split the original list into two halves
-		size_t QuarterSize = originalFaults.size() / 2;
-		FaultPtrList::iterator faultIter = originalFaults.begin();
-		for(int i=0; (int)i<originalFaults.size()/2;i++){
-			faultIter ++;
+		int threadNum;
+		if (!optMgr_.isFlagSet("n"))
+		{
+			// threadNum = std::thread::hardware_concurrency();
+			threadNum = 5;
 		}
-		//FaultPtrList firstHalf(originalFaults.begin(), std::next(originalFaults.begin(), halfSize));
-		//FaultPtrList secondHalf(std::next(originalFaults.begin(), halfSize), originalFaults.end());
+		else
+		{
+			threadNum = stoi(optMgr_.getFlagVar("n"));
+		}
+		std::cout << "#  Multi-thread Fault Sim Started with " << threadNum << " threads.\n";
+
+		// Fault Partition
+		FaultPtrList &originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
+		// Split the original list into two halves
+		int threadSize = originalFaults.size() / threadNum;
+		FaultPtrList::iterator faultIter1 = originalFaults.begin();
+		FaultPtrList::iterator faultIter2 = originalFaults.begin();
+		for (int i = 0; i < threadSize; i++)
+		{
+			faultIter2++;
+		}
 
 		// Create two FanMgr instances
-		FanMgr fanMgr1(*fanMgr_);
-    	FanMgr fanMgr2(*fanMgr_);
-		//FanMgr fanMgr3(*fanMgr_);
-		
-		// Assign the halves to the corresponding FanMgr instances
-		//fanMgr1.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), originalFaults.begin(), std::next(originalFaults.begin(), QuarterSize)); 
-		//fanMgr2.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize), std::next(originalFaults.begin(), QuarterSize*2)); 
-		//fanMgr3.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize*2), originalFaults.end()); 
-		//fanMgr2.fListExtract->faultsInCircuit_.insert(fanMgr1.fListExtract->faultsInCircuit_.end(), std::next(originalFaults.begin(), QuarterSize), originalFaults.end()); 
-		fanMgr1.fListExtract->faultsInCircuit_.assign(originalFaults.begin(), faultIter);
-		fanMgr2.fListExtract->faultsInCircuit_.assign(faultIter++, originalFaults.end());
+		std::vector<FanMgr* > fanMgrs;
+		std::vector<std::thread> threads;
 
+		// std::cout << originalFaults.size() << "\n";
 
-		// int rand = 0;
-		// for (Fault *const &pFault : fanMgr_->fListExtract->faultsInCircuit_){
-		// 	if(rand == 0) 
-		// 		fanMgr1.fListExtract->faultsInCircuit_.push_back(pFault);
-		// 	else 
-		// 		fanMgr2.fListExtract->faultsInCircuit_.push_back(pFault);
-		// 	rand = 1-rand;
-		// }
+		for (int i = 0; i < threadNum; i++)
+		{
+			FanMgr* fanMgr = new FanMgr(*fanMgr_);
+			if (i == threadNum - 1)
+			{
+				fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, originalFaults.end());
+			}
+			else
+			{
+				fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, faultIter2);
+			}
+			// std::cout << fanMgr->fListExtract->faultsInCircuit_.size() << "\n";
+			fanMgrs.push_back(fanMgr);
+			for (int j=0; j < threadSize; j++)
+			{
+				faultIter1++;
+				faultIter2++;
+			}
+		}
 
 		// Define a lambda function to run the simulation
-		auto runSimulation = [](FanMgr *fanMgr) {
+		auto runSimulation = [](FanMgr* fanMgr)
+		{
 			fanMgr->sim->parallelPatternFaultSimWithAllPattern(fanMgr->pcoll, fanMgr->fListExtract);
 		};
 
-
 		// Create two threads and run the simulation in parallel
-		std::thread thread1(runSimulation, &fanMgr1);
-		std::thread thread2(runSimulation, &fanMgr2);
-		//std::thread thread3(runSimulation, &fanMgr3);
+		for (int i = 0; i < threadNum; i++){
+			threads.emplace_back(runSimulation, fanMgrs[i]);
+		}
 
 		// Wait for both threads to finish
-		thread1.join();
-		thread2.join();
-		//thread3.join();
+		for(auto& thread: threads){
+			thread.join();
+		}
 		// Combine the results back into fanMgr_->fListExtract->faultsInCircuit_
 		originalFaults.clear();
-		originalFaults.insert(originalFaults.end(), fanMgr1.fListExtract->faultsInCircuit_.begin(), fanMgr1.fListExtract->faultsInCircuit_.end());
-		originalFaults.insert(originalFaults.end(), fanMgr2.fListExtract->faultsInCircuit_.begin(), fanMgr2.fListExtract->faultsInCircuit_.end());
-		//originalFaults.insert(originalFaults.end(), fanMgr3.fListExtract->faultsInCircuit_.begin(), fanMgr3.fListExtract->faultsInCircuit_.end());
+		for (int i = 0; i < threadNum; i++){
+			originalFaults.insert(originalFaults.end(), fanMgrs[i]->fListExtract->faultsInCircuit_.begin(), fanMgrs[i]->fListExtract->faultsInCircuit_.end());
+		}
 	}
 	else
 	{

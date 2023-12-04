@@ -1,29 +1,29 @@
 #                 Statistics Report
-#  Circuit name                               s35932
+#  Circuit name                                 s510
 #  Fault model                                   SAF
 #  Pattern type                                BASIC
 #  -------------------------------------------------
 #  Fault classes                             #faults
 #  ----------------------------  -------------------
-#    FU (full)                                100018
-#    FU (collapsed)                            72890
+#    FU (full)                                  1402
+#    FU (collapsed)                              946
 #    --------------------------  -------------------
-#    UD (undetected)                           12424
+#    UD (undetected)                              12
 #    PT (possibly testable)                        0
 #    AU (atpg untestable)                          0
 #    RE (redundant)                                0
 #    AB (atpg abort)                               0
 #    TI (tied)                                     0
 #    --------------------------  -------------------
-#    DT (detected)                             87594
+#    DT (detected)                              1390
 #  -------------------------------------------------
 #  Coverage                               percentage
 #    --------------------------  -------------------
-#    test coverage                            87.58%
-#    fault coverage                           87.58%
-#    atpg effectiveness                       87.58%
+#    test coverage                            99.14%
+#    fault coverage                           99.14%
+#    atpg effectiveness                       99.14%
 #  -------------------------------------------------
-#  #Patterns                                      21
+#  #Patterns                                      57
 #  -------------------------------------------------
-#  ATPG runtime                              5.092 s
+#  ATPG runtime                           0.002663 s
 #  -------------------------------------------------
