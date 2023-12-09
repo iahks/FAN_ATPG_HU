@@ -203,32 +203,17 @@ void Simulator::parallelPatternGoodSimWithAllPattern(PatternProcessor *pPatternC
 void Simulator::parallelPatternFaultSimWithAllPattern(PatternProcessor *pPatternCollector, FaultListExtract *pFaultListExtract)
 {
 	// Undetected faults are remaining faults.
-	
+
 	FaultPtrList remainingFaults;
 	//std::cout<<pFaultListExtract->faultsInCircuit_.size()<<"\n";
 	for (Fault *const &pFault : pFaultListExtract->faultsInCircuit_)
 	{
-		//std::cout<<std::this_thread::get_id()<<"In for loop\n";
 		bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
 		if (faultNotDetect)
 		{
 			remainingFaults.push_back(pFault);
-			//std::cout<<std::this_thread::get_id()<<"list++\n";
 		}
 	}
-
-	// for (int i = 0; i < pFaultListExtract->faultsInCircuit_.size(); i++)
-	// {
-	// 	//std::cout<<std::this_thread::get_id()<<"In for loop\n";
-	// 	bool faultNotDetect = pFaultListExtract->faultsInCircuit_.top()->faultState_ != Fault::DT && pFaultListExtract->faultsInCircuit_[i]->faultState_ != Fault::RE && pFaultListExtract->faultsInCircuit_[i]->faultyLine_ >= 0;
-	// 	if (faultNotDetect)
-	// 	{
-	// 		//std::lock_guard<std::mutex> lock(mutex_);
-	// 		remainingFaults.push_back(pFaultListExtract->faultsInCircuit_[i]);
-	// 		//std::cout<<std::this_thread::get_id()<<"list++\n";
-	// 	}
-	//}
-	std::cout<<remainingFaults.size()<<"\n";
 
 	// Simulate all patterns for all faults.
 	for (int patternStartIndex = 0; patternStartIndex < (int)pPatternCollector->patternVector_.size(); patternStartIndex += WORD_SIZE)
@@ -369,12 +354,12 @@ void Simulator::multiThread_parallelPatternFaultSim(FaultPtrList &remainingFault
 		if (parallelPatternCheckActivation((*it)))
 		{
 			//lock.lock();
-			parallelPatternFaultInjection((*it));			
-			eventFaultSim();		
-			parallelPatternCheckDetection((*it));			
+			parallelPatternFaultInjection((*it));
+			eventFaultSim();
+			parallelPatternCheckDetection((*it));
 			parallelPatternReset();
 		}
-		// else 
+		// else
 		// 	lock.unlock();
 		if ((*it)->faultState_ == Fault::DT)
 		{
@@ -383,7 +368,7 @@ void Simulator::multiThread_parallelPatternFaultSim(FaultPtrList &remainingFault
 		else
 		{
 			++it;
-		}		
+		}
 		// std::cout<<"Thread "<<index<<" fault size: "<<remainingFaults.size()<<" ended \n";
 	}
 	std::cout<<"Thread "<<index<<" finisheded. \n";
@@ -566,7 +551,7 @@ void Simulator::parallelPatternReset()
 // }
 
 // void Simulator::parallelPatternResetInjection(){
-	
+
 	std::fill(processed_.begin(), processed_.end(), 0);
 	std::fill(faultInjectLow_.begin(), faultInjectLow_.end(), std::array<ParallelValue, 5>({0, 0, 0, 0, 0}));
 	std::fill(faultInjectHigh_.begin(), faultInjectHigh_.end(), std::array<ParallelValue, 5>({0, 0, 0, 0, 0}));
@@ -592,7 +577,7 @@ bool Simulator::parallelPatternCheckActivation(const Fault *const pfault)
 	// If output fault, faultyGate = gateID of the faulty gate.
 	// Else if input fault, faultyGate = gateID of the faulty gate's fanin array.
 	const int &faultyGate = pfault->faultyLine_ == 0 ? pfault->gateID_ : pCircuit_->circuitGates_[pfault->gateID_].faninVector_[pfault->faultyLine_ - 1];
-	// std::unique_lock<std::mutex> lock(check_); 
+	// std::unique_lock<std::mutex> lock(check_);
 	// cv_.wait(lock, [&] {
 	// 	bool pass = true;
 	// 	for(const int& it : recoverGates_){
