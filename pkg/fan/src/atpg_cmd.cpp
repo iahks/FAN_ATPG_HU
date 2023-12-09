@@ -1262,7 +1262,7 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 		if (!optMgr_.isFlagSet("n"))
 		{
 			// threadNum = std::thread::hardware_concurrency();
-			threadNum = 5;
+			threadNum = 16;
 		}
 		else
 		{
