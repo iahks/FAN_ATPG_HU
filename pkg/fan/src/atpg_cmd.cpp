@@ -1261,8 +1261,8 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 		int threadNum;
 		if (!optMgr_.isFlagSet("n"))
 		{
-			// threadNum = std::thread::hardware_concurrency();
-			threadNum = 16;
+
+			threadNum = std::thread::hardware_concurrency() / 2  ;
 		}
 		else
 		{
@@ -1271,11 +1271,21 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 		std::cout << "#  Multi-thread Fault Sim Started with " << threadNum << " threads.\n";
 
 		// Fault Partition
-		FaultPtrList &originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
+		FaultPtrList originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
+		FaultPtrList updatedFaults;
+		for (Fault *const &pFault : originalFaults)
+		{
+			bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
+			if (faultNotDetect)
+			{
+				updatedFaults.push_back(pFault);
+			}
+		}
+
 		// Split the original list into two halves
-		int threadSize = originalFaults.size() / threadNum;
-		FaultPtrList::iterator faultIter1 = originalFaults.begin();
-		FaultPtrList::iterator faultIter2 = originalFaults.begin();
+		int threadSize = updatedFaults.size() / threadNum;
+		FaultPtrList::iterator faultIter1 = updatedFaults.begin();
+		FaultPtrList::iterator faultIter2 = updatedFaults.begin();
 		for (int i = 0; i < threadSize; i++)
 		{
 			faultIter2++;
@@ -1285,12 +1295,13 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 		std::vector<FanMgr* > fanMgrs;
 		std::vector<std::thread> threads;
 
+
 		for (int i = 0; i < threadNum; i++)
 		{
 			FanMgr* fanMgr = new FanMgr(*fanMgr_);
 			if (i == threadNum - 1)
 			{
-				fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, originalFaults.end());
+				fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, updatedFaults.end());
 			}
 			else
 			{
@@ -1304,6 +1315,7 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 				faultIter2++;
 			}
 		}
+
 
 
 		// Define a lambda function to run the simulation
@@ -1322,10 +1334,19 @@ bool RunFaultSimCmd::exec(const std::vector<std::string> &argv)
 			thread.join();
 		}
 		// Combine the results back into fanMgr_->fListExtract->faultsInCircuit_
-		originalFaults.clear();
+		updatedFaults.clear();
 		for (int i = 0; i < threadNum; i++){
-			originalFaults.insert(originalFaults.end(), fanMgrs[i]->fListExtract->faultsInCircuit_.begin(), fanMgrs[i]->fListExtract->faultsInCircuit_.end());
+			updatedFaults.insert(updatedFaults.end(), fanMgrs[i]->fListExtract->faultsInCircuit_.begin(), fanMgrs[i]->fListExtract->faultsInCircuit_.end());
 		}
+
+		// Delete the dynamically allocated FanMgr objects
+		for (FanMgr* fanMgr : fanMgrs)
+		{
+			delete fanMgr;
+		}
+
+		// Clear the vector to release the memory used by the FanMgr pointers
+		fanMgrs.clear();
 	}
 	else
 	{
