@@ -208,12 +208,16 @@ void Simulator::parallelPatternFaultSimWithAllPattern(PatternProcessor *pPattern
 	//std::cout<<pFaultListExtract->faultsInCircuit_.size()<<"\n";
 	for (Fault *const &pFault : pFaultListExtract->faultsInCircuit_)
 	{
+		//std::cout<<std::this_thread::get_id()<<"In for loop\n";
 		bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
 		if (faultNotDetect)
 		{
 			remainingFaults.push_back(pFault);
+			//std::cout<<std::this_thread::get_id()<<"list++\n";
 		}
 	}
+
+	// std::cout<<remainingFaults.size()<<"\n";
 
 	// Simulate all patterns for all faults.
 	for (int patternStartIndex = 0; patternStartIndex < (int)pPatternCollector->patternVector_.size(); patternStartIndex += WORD_SIZE)
