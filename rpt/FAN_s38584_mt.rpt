@@ -1,29 +1,29 @@
 #                 Statistics Report
-#  Circuit name                                s5378
+#  Circuit name                               s38584
 #  Fault model                                   SAF
 #  Pattern type                                BASIC
 #  -------------------------------------------------
 #  Fault classes                             #faults
 #  ----------------------------  -------------------
-#    FU (full)                                 11822
-#    FU (collapsed)                             8077
+#    FU (full)                                105842
+#    FU (collapsed)                            73185
 #    --------------------------  -------------------
-#    UD (undetected)                             358
+#    UD (undetected)                            2852
 #    PT (possibly testable)                        0
-#    AU (atpg untestable)                        110
+#    AU (atpg untestable)                       4208
 #    RE (redundant)                                0
 #    AB (atpg abort)                               0
 #    TI (tied)                                     0
 #    --------------------------  -------------------
-#    DT (detected)                             11354
+#    DT (detected)                             98782
 #  -------------------------------------------------
 #  Coverage                               percentage
 #    --------------------------  -------------------
-#    test coverage                            96.94%
-#    fault coverage                           96.04%
-#    atpg effectiveness                       96.97%
+#    test coverage                            97.19%
+#    fault coverage                           93.33%
+#    atpg effectiveness                       97.31%
 #  -------------------------------------------------
-#  #Patterns                                     117
+#  #Patterns                                     130
 #  -------------------------------------------------
-#  ATPG runtime                             0.5143 s
+#  ATPG runtime                              35.16 s
 #  -------------------------------------------------

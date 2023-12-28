@@ -1411,11 +1411,114 @@ bool RunAtpgCmd::exec(const std::vector<std::string> &argv)
 
 	delete fanMgr_->atpg;
 	fanMgr_->atpg = new Atpg(fanMgr_->cir, fanMgr_->sim);
+	//fanMgr_->atpg->setupCircuitParameter();
 
-	std::cout << "#  Performing pattern generation ...\n";
-	fanMgr_->tmusg.periodStart();
+	if (fanMgr_->pcoll->multithread_==PatternProcessor::ON)
+	{
+		std::cout << "#  Performing multi-thread pattern generation ...\n";
+		fanMgr_->tmusg.periodStart();
+		FaultPtrList originalFaults = fanMgr_->fListExtract->faultsInCircuit_;
+		FaultPtrList updatedFaults;
+		const int& threadNum = 8;
+		for (Fault *const &pFault : originalFaults)
+		{
+			bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
+			if (faultNotDetect)
+			{
+				updatedFaults.push_back(pFault);
+			}
+		}
 
-	fanMgr_->atpg->generatePatternSet(fanMgr_->pcoll, fanMgr_->fListExtract, true);
+		// Split the original list into two halves
+		int threadSize = updatedFaults.size() / threadNum; 
+		FaultPtrList::iterator faultIter1 = updatedFaults.begin();
+		FaultPtrList::iterator faultIter2 = updatedFaults.begin();
+		for (int i = 0; i < threadSize && faultIter2 != updatedFaults.end(); i++)
+		{
+			faultIter2++;
+		}
+
+		// Create two FanMgr instances
+		std::vector<FanMgr* > fanMgrs;
+		std::vector<std::thread> threads;
+
+		// for (int i = 0; i < threadNum; i++)
+		// {
+		// 	FanMgr* fanMgr = new FanMgr(*fanMgr_);
+		// 	if (i == threadNum - 1)
+		// 	{
+		// 		fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, updatedFaults.end());
+		// 	}
+		// 	else
+		// 	{
+		// 		fanMgr->fListExtract->faultsInCircuit_.assign(faultIter1, faultIter2);
+		// 	}
+		// 	// std::cout << fanMgr->fListExtract->faultsInCircuit_.size() << "\n";
+		// 	fanMgrs.push_back(fanMgr);
+		// 	for (int j=0; j < threadSize && faultIter2 != updatedFaults.end(); j++)
+		// 	{
+		// 		faultIter1++;
+		// 		faultIter2++;
+		// 	}
+		// }
+		for (int i = 0; i < threadNum; i++)
+		{
+			FanMgr* fanMgr = new FanMgr(*fanMgr_);
+			if (i == threadNum - 1)
+			{
+				fanMgr->fListExtract->faultsInCircuit_.insert(fanMgr->fListExtract->faultsInCircuit_.end(), faultIter1, updatedFaults.end());
+				fanMgr->fListExtract->faultsInCircuit_.insert(fanMgr->fListExtract->faultsInCircuit_.end(), updatedFaults.begin(), faultIter1);
+			}
+			// std::cout << fanMgr->fListExtract->faultsInCircuit_.size() << "\n";
+			fanMgrs.push_back(fanMgr);
+			for (int j=0; j < threadSize && faultIter2 != updatedFaults.end(); j++)
+			{
+				faultIter1++;
+				faultIter2++;
+			}
+		}
+
+
+
+		// Define a lambda function to run the simulation
+		auto runAtpg = [](FanMgr* fanMgr)
+		{
+			fanMgr->atpg->atpgStart(fanMgr->pcoll, fanMgr->fListExtract, true);
+		};
+
+
+		for (int i = 0; i < threadNum; i++){
+			threads.emplace_back(runAtpg, fanMgrs[i]);
+		}
+
+		// Wait for both threads to finish
+		for(auto& thread: threads){
+			thread.join();
+		}
+		std::cout << "the\n";
+		// Combine the results back into fanMgr_->fListExtract->faultsInCircuit_
+		updatedFaults.clear();
+		for (int i = 0; i < threadNum; i++){
+			updatedFaults.insert(updatedFaults.end(), fanMgrs[i]->fListExtract->faultsInCircuit_.begin(), fanMgrs[i]->fListExtract->faultsInCircuit_.end());
+			fanMgr_->pcoll->patternVector_.insert(fanMgr_->pcoll->patternVector_.end(), fanMgrs[i]->pcoll->patternVector_.begin(), fanMgrs[i]->pcoll->patternVector_.end());
+		}
+
+		// Delete the dynamically allocated FanMgr objects
+		for (FanMgr* fanMgr : fanMgrs)
+		{
+			delete fanMgr;
+		}
+
+		// Clear the vector to release the memory used by the FanMgr pointers
+		fanMgrs.clear();
+	}
+	else
+	{
+		std::cout << "#  Performing pattern generation ...\n";
+		fanMgr_->tmusg.periodStart();
+
+		fanMgr_->atpg->atpgStart(fanMgr_->pcoll, fanMgr_->fListExtract, true);
+	}
 
 	fanMgr_->tmusg.getPeriodUsage(fanMgr_->atpgStat);
 	std::cout << "#  Finished pattern generation";

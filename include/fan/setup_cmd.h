@@ -137,8 +137,19 @@ public:
 private:
     FanMgr *fanMgr_;
 };
-//Ne
 
+
+//Ne
+class SetMultithreadCmd : public CommonNs::Cmd {
+public:
+         SetMultithreadCmd(const std::string &name, FanMgr *fanMgr);
+         ~SetMultithreadCmd();
+
+    bool exec(const std::vector<std::string> &argv);
+
+private:
+    FanMgr *fanMgr_;
+};
 
 
 };

@@ -767,4 +767,66 @@ bool SetXFillCmd::exec(const std::vector<std::string> &argv)
 
 	return true;
 }
+
+SetMultithreadCmd::SetMultithreadCmd(const std::string &name, FanMgr *fanMgr) : Cmd(name)
+{
+	fanMgr_ = fanMgr;
+	optMgr_.setName(name);
+	optMgr_.setShortDes("set Multi-thread");
+	optMgr_.setDes("set Multi-thread on/off");
+	optMgr_.regArg(new Arg(Arg::REQ, "either on or off",
+												 "on/off"));
+	Opt *opt = new Opt(Opt::BOOL, "print usage", "");
+	opt->addFlag("h");
+	opt->addFlag("help");
+	optMgr_.regOpt(opt);
+}
+
+SetMultithreadCmd::~SetMultithreadCmd() {}
+
+bool SetMultithreadCmd::exec(const std::vector<std::string> &argv)
+{
+	optMgr_.parse(argv);
+
+	if (optMgr_.isFlagSet("h"))
+	{
+		optMgr_.usage();
+		return true;
+	}
+
+	if (optMgr_.getNParsedArg() < 1)
+	{
+		std::cerr << "**ERROR SetMultithreadCmd::exec(): on/off needed";
+		std::cerr << "\n";
+		return false;
+	}
+
+	if (!fanMgr_->pcoll)
+	{
+		fanMgr_->pcoll = new PatternProcessor;
+	}
+
+	if (optMgr_.getParsedArg(0) == "on")
+	{
+		std::cout << "#  Multi-thread set to on"
+							<< "\n";
+
+		fanMgr_->pcoll->multithread_ = PatternProcessor::ON;
+	}
+	else if (optMgr_.getParsedArg(0) == "off")
+	{
+		std::cout << "#  Multi-thread set to off\n";
+
+		fanMgr_->pcoll->multithread_ = PatternProcessor::OFF;
+	}
+	else
+	{
+		std::cerr << "**ERROR SetMultithreadCmd::exec(): unknown argument `";
+		std::cerr << optMgr_.getParsedArg(0) << "'"
+							<< "\n";
+		return false;
+	}
+
+	return true;
+}
 // Ne

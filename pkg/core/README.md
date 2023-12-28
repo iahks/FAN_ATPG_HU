@@ -108,7 +108,7 @@ Contents of this package are listed here:
     Simulator simulator(&circuit);
     ...
     Atpg atpg(&circuit, &simulator);
-    atpg.generatePatternSet(&patternCollector, &fListExtract, true);
+    atpg.atpgStart(&patternCollector, &fListExtract, true);
     ```
 
 ## III. Build

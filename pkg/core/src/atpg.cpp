@@ -11,8 +11,8 @@
 using namespace CoreNs;
 
 // **************************************************************************
-// Function   [ Atpg::generatePatternSet ]
-// Commenter  [ CAL WWS ]
+// Function   [ Atpg::atpgStart ]
+// Commenter  [ CAL WWS HKS]
 // Synopsis   [ usage:	The main function of class Atpg.
 //
 // 							description:
@@ -37,11 +37,10 @@ using namespace CoreNs;
 // 								activated. MFO stands for multiple fault order, which is a
 // 								heuristic with Multiple Fault Orderings.
 // 						]
-// Date       [ Ver. 1.0 started 2013/08/13	last modified 2023/01/05 ]
+// Date       [ Ver. 1.0 started 2013/08/13	last modified 2023/12/27 ]
 // **************************************************************************
-void Atpg::generatePatternSet(PatternProcessor *pPatternProcessor, FaultListExtract *pFaultListExtractor, bool isMFO)
+void Atpg::atpgStart(PatternProcessor *pPatternProcessor, FaultListExtract *pFaultListExtractor, bool isMFO)
 {
-	Fault *pCurrentFault = NULL;
 	FaultPtrList originalFaultPtrList, faultPtrListForSTC;
 	setupCircuitParameter();
 	pPatternProcessor->init(pCircuit_);
@@ -68,34 +67,91 @@ void Atpg::generatePatternSet(PatternProcessor *pPatternProcessor, FaultListExtr
 	pPatternProcessor->patternVector_.reserve(MAX_LIST_SIZE);
 
 	// start ATPG
-	while (!originalFaultPtrList.empty())
-	{
-		// meaning the originalFaultPtrList is already left with aborted fault
-		if (originalFaultPtrList.front()->faultState_ == Fault::AB)
-		{
-			break;
-		}
+	// if (pPatternProcessor->multithread_ == PatternProcessor::ON)
+	// {
+	// 	int threadNum = 2; //just for test
+	// 	FaultPtrList updatedFaults;
+	// 	for (Fault *const &pFault : originalFaultPtrList)
+	// 	{
+	// 		bool faultNotDetect = pFault->faultState_ != Fault::DT && pFault->faultState_ != Fault::RE && pFault->faultyLine_ >= 0;
+	// 		if (faultNotDetect)
+	// 		{
+	// 			updatedFaults.push_back(pFault);
+	// 		}
+	// 	}
 
-		// the fault is not popped in previous call of StuckAtFaultATPG()
-		// => the fault is neither aborted nor untestable => a pattern was found => detected fault
-		if (pCurrentFault == originalFaultPtrList.front())
-		{
-			originalFaultPtrList.front()->faultState_ = Fault::DT;
-			originalFaultPtrList.pop_front();
-			continue;
-		}
+	// 	int threadSize = updatedFaults.size() / threadNum;
+	// 	FaultPtrList::iterator faultIter1 = updatedFaults.begin();
+	// 	FaultPtrList::iterator faultIter2 = updatedFaults.begin();
+	// 	for (int i = 0; i < threadSize; i++)
+	// 	{
+	// 		faultIter2++;
+	// 	}
 
-		pCurrentFault = originalFaultPtrList.front();
-		const bool isTransitionDelayFault = (pCurrentFault->faultType_ == Fault::STR || pCurrentFault->faultType_ == Fault::STF);
-		if (isTransitionDelayFault)
-		{
-			TransitionDelayFaultATPG(originalFaultPtrList, pPatternProcessor, numOfAtpgUntestableFaults);
-		}
-		else
-		{
-			StuckAtFaultATPG(originalFaultPtrList, pPatternProcessor, numOfAtpgUntestableFaults);
-		}
-	}
+	// 	// Create two FanMgr instances
+	// 	std::vector<FaultPtrList > thisFaultPtrLists_;
+	// 	std::vector<PatternProcessor* > thisPatternProcessors_;
+	// 	std::vector<int> numOfUntestableFaults_;
+	// 	std::vector<std::thread> threads;
+
+
+	// 	for (int i = 0; i < threadNum; i++)
+	// 	{
+	// 		FaultPtrList cutFaultPtrList;
+	// 		PatternProcessor *patternProcessor = new PatternProcessor(*pPatternProcessor);
+	// 		if (i == threadNum - 1)
+	// 		{
+	// 			cutFaultPtrList.assign(faultIter1, updatedFaults.end());
+	// 		}
+	// 		else
+	// 		{
+	// 			cutFaultPtrList.assign(faultIter1, faultIter2);
+	// 		}
+	// 		thisFaultPtrLists_.push_back(cutFaultPtrList);
+	// 		thisPatternProcessors_.push_back(patternProcessor);
+	// 		numOfUntestableFaults_.push_back(0);
+	// 		// std::cout << cutFaultPtrList.size() << "\n";
+	// 		for (int j=0; j < threadSize; j++)
+	// 		{
+	// 			faultIter1++;
+	// 			faultIter2++;
+	// 		}
+	// 	}
+
+
+	// 	// Define a lambda function to run the simulation
+	// 	auto generatePattern = [this](PatternProcessor *pthisPatternProcessor, FaultPtrList &thisFaultPtrList, int &numOfUntestableFaults)
+	// 	{
+	// 		generatePatternSet(pthisPatternProcessor, thisFaultPtrList, numOfUntestableFaults);
+	// 	};
+
+
+	// 	for (int i = 0; i < threadNum; i++){
+	// 		threads.emplace_back(generatePattern, thisPatternProcessors_[i], std::ref(thisFaultPtrLists_[i]), std::ref(numOfUntestableFaults_[i]));
+	// 	}
+		
+	// 	// Wait for both threads to finish
+	// 	for(auto& thread: threads){
+	// 		thread.join();
+	// 	}
+	// 	std::cout<<"Here\n";
+	// 	// Combine the results back 
+	// 	updatedFaults.clear();
+	// 	for (int i = 0; i < threadNum; i++){
+	// 		updatedFaults.insert(updatedFaults.end(), thisFaultPtrLists_[i].begin(), thisFaultPtrLists_[i].end());
+	// 		pPatternProcessor->patternVector_.insert(pPatternProcessor->patternVector_.end(), thisPatternProcessors_[i]->patternVector_.begin(), thisPatternProcessors_[i]->patternVector_.end());
+	// 		numOfAtpgUntestableFaults += numOfUntestableFaults_[i];
+	// 	}
+	// 	std::cout<<"Here\n";
+	// 	thisFaultPtrLists_.clear();
+	// 	thisPatternProcessors_.clear();
+	// 	numOfUntestableFaults_.clear();
+	// }
+	// else
+	// {
+		generatePatternSet(pPatternProcessor, originalFaultPtrList, numOfAtpgUntestableFaults);
+	//}
+
 	if (pPatternProcessor->staticCompression_ == PatternProcessor::ON)
 	{
 		staticTestCompressionByReverseFaultSimulation(pPatternProcessor, faultPtrListForSTC);
@@ -109,6 +165,67 @@ void Atpg::generatePatternSet(PatternProcessor *pPatternProcessor, FaultListExtr
 	}
 }
 
+// **************************************************************************
+// Function   [ Atpg::generatePatternSet ]
+// Commenter  [ HKS ]
+// Synopsis   [ usage:	The main function of class Atpg.
+//
+// 							description:
+// 								This function generates a test pattern set based on a
+// 								extracted fault list extracted from the target circuit.
+// 								Activate STC/DTC depending on the pPatternProcessor's flag
+// 								which is set previously in atpg_cmd.cpp based on user's
+// 								script.
+//
+// 							arguments:
+// 								[in, out] pPatternProcessor : A pointer to an empty pattern
+// 								processor. It will contain the final test pattern set
+// 								generated by ATPG after this function call. The test
+// 								pattern set is generated based on the faults extracted from
+// 								the target circuit.
+//
+// 								[in] pFaultListExtractor : A pointer to a fault list
+// 								extractor containing the fault list extracted from the
+// 								target circuit.
+//
+// 								[in] isMFO : A flag specifying whether the MFO mode is
+// 								activated. MFO stands for multiple fault order, which is a
+// 								heuristic with Multiple Fault Orderings.
+// 						]
+// Date       [ Ver. 1.0 started 2013/08/13	last modified 2023/12/27 ]
+// **************************************************************************
+void Atpg::generatePatternSet(PatternProcessor *pPatternProcessor, FaultPtrList &thisFaultPtrList, int &numOfAtpgUntestableFaults)
+{
+	Fault *pCurrentFault = NULL;
+	while (!thisFaultPtrList.empty())
+	{
+		// meaning thisFaultPtrList is already left with aborted fault
+		if (thisFaultPtrList.front()->faultState_ == Fault::AB)
+		{
+			break;
+		}
+
+		// the fault is not popped in previous call of StuckAtFaultATPG()
+		// => the fault is neither aborted nor untestable => a pattern was found => detected fault
+		if (pCurrentFault == thisFaultPtrList.front())
+		{
+			thisFaultPtrList.front()->faultState_ = Fault::DT;
+			thisFaultPtrList.pop_front();
+			continue;
+		}
+
+		pCurrentFault = thisFaultPtrList.front();
+		const bool isTransitionDelayFault = (pCurrentFault->faultType_ == Fault::STR || pCurrentFault->faultType_ == Fault::STF);
+		if (isTransitionDelayFault)
+		{
+			TransitionDelayFaultATPG(thisFaultPtrList, pPatternProcessor, numOfAtpgUntestableFaults);
+		}
+		else
+		{
+			StuckAtFaultATPG(thisFaultPtrList, pPatternProcessor, numOfAtpgUntestableFaults);
+		}
+	}
+}
 // **************************************************************************
 // Function   [ Atpg::setupCircuitParameter ]
 // Commenter  [ KOREAL WWS ]

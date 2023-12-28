@@ -73,6 +73,7 @@ namespace CoreNs
 		};
 
 		inline PatternProcessor();
+		inline PatternProcessor(const PatternProcessor& other);
 		enum State
 		{
 			OFF = 0,
@@ -81,6 +82,7 @@ namespace CoreNs
 		State staticCompression_;	 // Flag; ON = need static compression
 		State dynamicCompression_; // Flag; ON = need dynamic compression
 		State XFill_;							 // Flag; ON = need X-Filling
+		State multithread_;			// Flag; ON = need Multi-threading
 
 		Type type_;
 		int numPI_;
@@ -103,12 +105,30 @@ namespace CoreNs
 		staticCompression_ = OFF;
 		dynamicCompression_ = OFF;
 		XFill_ = OFF;
+		multithread_ = OFF;
 
 		type_ = BASIC_SCAN;
 		numPI_ = 0;
 		numPPI_ = 0;
 		numSI_ = 0;
 		numPO_ = 0;
+	}
+
+	inline PatternProcessor::PatternProcessor(const PatternProcessor& other)
+	    : staticCompression_(other.staticCompression_),
+			dynamicCompression_(other.dynamicCompression_),
+			XFill_(other.XFill_),
+			multithread_(other.multithread_),
+			type_(other.type_),
+			numPI_(other.numPI_),
+			numPPI_(other.numPPI_),
+			numSI_(other.numSI_),
+			numPO_(other.numPO_),
+			patternVector_(other.patternVector_),
+			pPIorder_(other.pPIorder_),
+			pPPIorder_(other.pPPIorder_),
+			pPOorder_(other.pPOorder_) 
+	{	
 	}
 
 	// **************************************************************************

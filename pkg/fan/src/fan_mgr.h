@@ -35,15 +35,17 @@ public:
         nl             = other.nl;
         fListExtract   = new CoreNs::FaultListExtract;//(*other.fListExtract);
         pcoll          = new CoreNs::PatternProcessor(*other.pcoll);
-        cir            = other.cir;
+        cir            = new CoreNs::Circuit(*other.cir);
         sim            = new CoreNs::Simulator(*other.sim);
-        atpg           = other.atpg;
+        atpg           = new CoreNs::Atpg(*other.atpg);
         atpgStat.rTime = other.atpgStat.rTime;
     }
     ~FanMgr() {
         delete fListExtract;
         delete pcoll;
+        delete cir;
         delete sim;
+        delete atpg;
     }
 
     IntfNs::Techlib     *lib;

@@ -8,6 +8,7 @@ add_fault --all
 set_static_compression on
 set_dynamic_compression on
 set_X-Fill on
+set_multi_thread on
 run_atpg
 report_statistics > rpt/FAN_s208.rpt
 write_pattern pat/FAN_s208.pat

@@ -204,6 +204,7 @@ void initCmd(CmdMgr &cmdMgr, FanMgr &fanMgr)
 	Cmd *setPatternTypeCmd = new SetPatternTypeCmd("set_pattern_type", &fanMgr);
 	Cmd *setStaticCompressionCmd = new SetStaticCompressionCmd("set_static_compression", &fanMgr);
 	Cmd *setDynamicCompressionCmd = new SetDynamicCompressionCmd("set_dynamic_compression", &fanMgr);
+	Cmd *setMultithreadCmd = new SetMultithreadCmd("set_multi_thread", &fanMgr);
 	Cmd *setXFillCmd = new SetXFillCmd("set_X-Fill", &fanMgr);
 	cmdMgr.regCmd("SETUP", readLibCmd);
 	cmdMgr.regCmd("SETUP", readNlCmd);
@@ -216,6 +217,7 @@ void initCmd(CmdMgr &cmdMgr, FanMgr &fanMgr)
 	cmdMgr.regCmd("SETUP", setStaticCompressionCmd);
 	cmdMgr.regCmd("SETUP", setDynamicCompressionCmd);
 	cmdMgr.regCmd("SETUP", setXFillCmd);
+	cmdMgr.regCmd("SETUP", setMultithreadCmd);
 
 	// ATPG commands
 	Cmd *readPatCmd = new ReadPatCmd("read_pattern", &fanMgr);

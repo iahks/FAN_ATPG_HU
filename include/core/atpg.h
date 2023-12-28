@@ -25,10 +25,14 @@ namespace CoreNs
 	constexpr int NO_UNIQUE_PATH = -1;
 	constexpr int UNIQUE_PATH_SENSITIZE_FAIL = -2;
 
+
 	class Atpg
 	{
 	public:
 		inline Atpg(Circuit *pCircuit, Simulator *pSimulator);
+		inline Atpg(const Atpg& other);
+
+		
 
 		enum SINGLE_PATTERN_GENERATION_STATUS
 		{
@@ -68,7 +72,9 @@ namespace CoreNs
 		};
 
 		// class Atpg main method
-		void generatePatternSet(PatternProcessor *pPatternProcessor, FaultListExtract *pFaultListExtractor, bool isMFO);
+		//void setupCircuitParameter();
+		void atpgStart(PatternProcessor *pPatternProcessor, FaultListExtract *pFaultListExtractor, bool isMFO);
+		void generatePatternSet(PatternProcessor *pPatternProcessor, FaultPtrList &thisFaultPtrList, int &numOfAtpgUntestableFaults);
 
 	private:
 		Circuit *pCircuit_;																				// the circuit built on read verilog
@@ -207,7 +213,7 @@ namespace CoreNs
 		void checkLevelInfo();																		// for debug use
 		std::string getValStr(Value val);													// for debug use
 		void calSCOAP();																					// heuristic not effective, currently not used, added by Wang Wei-Shen
-		void testClearFaultEffect(FaultPtrList &faultListToTest); // removed from generatePatternSet() for now seems like debug usage
+		void testClearFaultEffect(FaultPtrList &faultListToTest); // removed from atpgStart() for now seems like debug usage
 		void resetIsInEventStack();																// not used
 		void XFill(PatternProcessor *pPatternProcessor);					// redundant function, removed by wang
 	};
@@ -237,6 +243,38 @@ namespace CoreNs
 		firstTimeFrameHeadLine_ = NULL;
 		isInEventStack_.resize(pCircuit->totalGate_);
 	}
+
+	CoreNs::Atpg::Atpg(const Atpg& other)
+			: pCircuit_(new Circuit(*(other.pCircuit_))),
+				pSimulator_(new Simulator(*(other.pSimulator_))),
+				currentTargetFault_(other.currentTargetFault_),
+				currentTargetHeadLineFault_(other.currentTargetHeadLineFault_),
+				numOfheadLines_(other.numOfheadLines_),
+				headLineGateIDs_(other.headLineGateIDs_),
+				gateID_to_n0_(other.gateID_to_n0_),
+				gateID_to_n1_(other.gateID_to_n1_),
+				gateID_to_valModified_(other.gateID_to_valModified_),
+				gateID_to_reachableByTargetFault_(other.gateID_to_reachableByTargetFault_),
+				gateID_to_lineType_(other.gateID_to_lineType_),
+				gateID_to_xPathStatus_(other.gateID_to_xPathStatus_),
+				gateID_to_uniquePath_(other.gateID_to_uniquePath_),
+				circuitLevel_to_EventStack_(other.circuitLevel_to_EventStack_),
+				backtrackDecisionTree_(other.backtrackDecisionTree_),
+				backtrackImplicatedGateIDs_(other.backtrackImplicatedGateIDs_),
+				gateIDsToResetAfterBackTrace_(other.gateIDsToResetAfterBackTrace_),
+				initialObjectives_(other.initialObjectives_),
+				currentObjectives_(other.currentObjectives_),
+				fanoutObjectives_(other.fanoutObjectives_),
+				headLineObjectives_(other.headLineObjectives_),
+				finalObjectives_(other.finalObjectives_),
+				unjustifiedGateIDs_(other.unjustifiedGateIDs_),
+				dFrontiers_(other.dFrontiers_),
+				isInEventStack_(other.isInEventStack_),
+				firstTimeFrameHeadLine_(nullptr)  // Set to nullptr for now
+	{
+	}
+
+
 
 	// **************************************************************************
 	// Function   [ Atpg::evaluateGoodVal ]
